@@ -94,7 +94,7 @@
 
             <Switch
                 android:id="@+id/saveCredentials"
-                android:layout_width="216dp"
+                android:layout_width="181dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="44dp"
                 android:layout_marginTop="20dp"
