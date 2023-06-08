@@ -1,6 +1,9 @@
 package com.example.thesis_1;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,6 +11,11 @@ import android.widget.EditText;
 import android.widget.Switch;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +25,6 @@ import org.json.simple.parser.ParseException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -52,32 +59,101 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            try {
+                loginRequest("http://" + address + ":3000/androidLogin", username, password, new Runnable() {
+                    @Override
+                    public void run() {
+
+                        //Pass the address value to the next activity
+                        Intent intent = new Intent(MainActivity.this , VideoStream.class);
+                        intent.putExtra("ADDRESS" , address);
+                        startActivity(intent);
+                        //
+                    }
+                });
+            } catch (JsonIOException e) {
+                throw new RuntimeException(e);
+            }
+
         });
 
 
 
         //Check if credentials are saved
         if(isCredentialsSaved()){
-            final JSONObject credentials = readCredentials();
+            final JsonObject credentials = readCredentials();
 
             //auto-fill the credentials
             try {
                 usernameField.setText(credentials.get("username").toString().replace("\"" , ""));
                 passwordField.setText(credentials.get("password").toString().replace("\"" , ""));
                 addressField.setText(credentials.get("address").toString().replace("\"" , ""));
-            } catch (JSONException e) {
+            } catch (JsonIOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
     /**
+     * Method for making a request to the given server
+     * The server responds with a boolean according to the given credentials
+     *
+     * @param url - address
+     * @param username - username
+     * @param password - password
+     * @param onSuccess - callback for when the server responds with success
+     */
+
+    private void loginRequest(String url , String username , String password , final Runnable onSuccess) {
+        //Buffer JSON object to be send
+        JsonObject json = new JsonObject();
+        json.addProperty("username" , username);
+        json.addProperty("password" , password);
+
+        findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+
+        Ion.with(this).load(url).setJsonObjectBody(json)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        findViewById(R.id.progressBar).setVisibility(View.GONE);
+                        if (e != null) {
+                            System.out.println(e);
+                            new AlertDialog.Builder(MainActivity.this).setTitle("Network error!")
+                                    .setMessage("Server is unreachable!").setPositiveButton(
+                                            "OK",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                }
+                                            }).show();
+                            return;
+                        }
+                        try {
+                            if (result.get("isSuccessful").getAsBoolean()) {
+                                onSuccess.run();
+                            } else {
+                                new AlertDialog.Builder(MainActivity.this).setTitle("Wrong credentials!")
+                                        .setMessage("Please check you username and password!").setPositiveButton(
+                                                "OK",
+                                                (dialog, id) -> dialog.cancel()).show();
+                            }
+                        } catch (JsonIOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+
+
+                });
+    }
+
+    /**
      * Method for writing credentials to a file
      *
-     *
-     * @param url
-     * @param username
-     * @param password
+     * @param url - video stream address
+     * @param username - username
+     * @param password - password
      */
     private void saveCredentials(String url , String username , String password) throws JSONException {
         JSONObject json = new JSONObject();
@@ -99,11 +175,10 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Method for reading the saved credentials from a file
      *
-     *
      * @return {JsonObject}
      */
 
-    private JSONObject readCredentials(){
+    private JsonObject readCredentials(){
         JSONParser parser= new JSONParser();
         try {
             FileInputStream fis = openFileInput("credentials.txt");
@@ -116,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //Return a JSON object
-            return (JSONObject) parser.parse(String.valueOf(sb.toString().getClass()));
+            return (JsonObject) parser.parse(String.valueOf(sb.toString().getClass()));
 
         } catch (IOException fileNotFound) {
             return null;
@@ -127,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Method for checking if credentials are already saved
-     *
      *
      * @return {boolean}
      */
