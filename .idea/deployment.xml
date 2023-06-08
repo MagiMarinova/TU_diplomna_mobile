@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="Raspberrypi" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Raspberrypi" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="Raspberrypi">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/mmari" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/Documents" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
     </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>
