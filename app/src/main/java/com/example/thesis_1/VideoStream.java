@@ -1,11 +1,11 @@
 package com.example.thesis_1;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.longdo.mjpegviewer.MjpegView;
 
 public class VideoStream extends AppCompatActivity {
     
@@ -24,13 +24,17 @@ public class VideoStream extends AppCompatActivity {
     }
 
     private void loadFeed(final String address){
-        final VideoView videoView = findViewById(R.id.videoView);
-        videoView.setVideoURI(Uri.parse("http://" + address + ":8081"));
+        final MjpegView videoView = findViewById(R.id.videoView);
+        System.out.println("ADRESS:" + address);
+        videoView.setUrl("http://" + address + ":8081");
+        videoView.setMode(MjpegView.MODE_FIT_WIDTH);
+        videoView.setAdjustHeight(true);
+        videoView.setSupportPinchZoomAndPan(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                videoView.start();
+                videoView.startStream();
             }
         }).start();
     }
