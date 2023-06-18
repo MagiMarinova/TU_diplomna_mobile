@@ -92,15 +92,15 @@
                 android:textColor="@color/black"
                 android:textColorHighlight="@color/cardview_dark_background" />
 
-            <Switch
-                android:id="@+id/saveCredentials"
-                android:layout_width="181dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="44dp"
-                android:layout_marginTop="20dp"
-                android:shadowColor="@color/purple"
-                android:text="Save login"
-                app:layout_constraintVertical_bias="0.454" />
+<!--            <Switch-->
+<!--                android:id="@+id/saveCredentials"-->
+<!--                android:layout_width="181dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="44dp"-->
+<!--                android:layout_marginTop="20dp"-->
+<!--                android:shadowColor="@color/purple"-->
+<!--                android:text="Save login"-->
+<!--                app:layout_constraintVertical_bias="0.454" />-->
 
             <Button
                 android:id="@+id/loginButton"
